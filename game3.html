@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Press Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+        integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body class="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
+    <div id="timer" class="text-2xl mb-4">Time Left: 30</div>
+    <div id="score" class="text-2xl mb-4">Score: 0</div>
+    <div id="display" class="font-bold text-center" style="font-size: 200px;"></div>
+    <div id="game-over" class="hidden text-4xl font-bold mt-4">Game Over! Final Score: <span id="final-score"></span>
+    </div>
+    <script>
+        let score = 0;
+        let timeLeft = 300;
+        let timerInterval;
+        let lastKey = null; // Track the last key pressed
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
+                ticks: 200,
+                gravity: 0.8,
+                scalar: 1.2,
+                shapes: ['star', 'circle', 'square'],
+                zIndex: 100
+            });
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `Time Left: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            document.getElementById('display').classList.add('hidden');
+            document.getElementById('timer').classList.add('hidden');
+            document.getElementById('score').classList.add('hidden');
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+        }
+
+        function changeBackgroundColor() {
+            const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            document.body.style.backgroundColor = randomColor;
+        }
+
+        function visual() {
+
+
+            // Fire confetti
+            fireConfetti();
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (timeLeft <= 0) return; // Stop processing if the game is over
+
+            const letter = event.key.toUpperCase();
+            if (!/^[A-Z0-9]$/.test(letter)) {
+                visual()
+                return;
+            }
+
+            if (letter === lastKey) {
+                visual();
+                return; // Skip if the same key is pressed repeatedly
+            }
+            lastKey = letter; // Update the last key pressed
+
+            const display = document.getElementById('display');
+            display.textContent = letter;
+            display.style.color = "#fff";
+
+            // Speech synthesis
+            const speech = new SpeechSynthesisUtterance(letter.toLowerCase());
+            speech.lang = 'en-US';
+            speech.rate = 0.8;
+            speech.pitch = 1.2;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(speech);
+
+            // Update score
+            score++;
+            document.getElementById('score').textContent = `Score: ${score}`;
+
+            // Change background color
+            changeBackgroundColor();
+            visual()
+        });
+
+        // Start the timer when the page loads
+        startTimer();
+    </script>
+</body>
+
+</html>

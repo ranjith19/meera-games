@@ -1,0 +1,27 @@
+{
+  "name": "meera",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/ranjith19/meera-games#readme",
+  "bugs": {
+    "url": "https://github.com/ranjith19/meera-games/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ranjith19/meera-games.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "confetti": "^2.0.6",
+    "three": "^0.175.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.4"
+  }
+}
