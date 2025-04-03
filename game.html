@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Press Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* We can remove the old confetti styles */
+    </style>
+</head>
+
+<body class="flex items-center justify-center h-screen bg-gray-900">
+    <div id="display" class="font-bold text-center" style="font-size: 200px;"></div>
+    <script>
+        var lastLetter = '';
+        let isProcessing = false;
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
+                ticks: 200,
+                gravity: 0.8,
+                scalar: 1.2,
+                shapes: ['star', 'circle', 'square'],
+                zIndex: 100
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+
+
+            const letter = event.key.toUpperCase();
+            if (!/^[A-Z0-9]$/.test(letter)) {
+                return;
+            }
+
+            if (letter === lastLetter && isProcessing) {
+                return;
+            }
+            lastLetter = letter;
+
+
+            isProcessing = true;
+            setTimeout(() => {
+                isProcessing = false;
+            }, 2000);
+
+            const display = document.getElementById('display');
+            display.textContent = letter;
+            display.style.color = "#fff"
+
+            // Speech synthesis code remains the same
+            const speech = new SpeechSynthesisUtterance(letter.toLowerCase());
+            speech.lang = 'en-US';
+            speech.rate = 0.8;
+            speech.pitch = 1.2;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(speech);
+
+            // Replace old confetti with new one
+            fireConfetti();
+        });
+    </script>
+</body>
+
+</html>
