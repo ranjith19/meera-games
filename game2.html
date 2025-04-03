@@ -19,10 +19,10 @@
     <div id="game-over" class="hidden text-4xl font-bold mt-4">Game Over! Final Score: <span id="final-score"></span>
     </div>
     <script>
-        let lastLetter = '';
         let score = 0;
         let timeLeft = 300;
         let timerInterval;
+        let lastKey = null; // Track the last key pressed
 
         function fireConfetti() {
             confetti({
@@ -62,18 +62,27 @@
             document.body.style.backgroundColor = randomColor;
         }
 
-        const handleKeyPress = _.throttle((event) => {
+        function visual() {
+
+
+            // Fire confetti
+            fireConfetti();
+        }
+
+        document.addEventListener('keydown', (event) => {
             if (timeLeft <= 0) return; // Stop processing if the game is over
 
             const letter = event.key.toUpperCase();
             if (!/^[A-Z0-9]$/.test(letter)) {
+                visual()
                 return;
             }
 
-            if (letter === lastLetter) {
-                return;
+            if (letter === lastKey) {
+                visual();
+                return; // Skip if the same key is pressed repeatedly
             }
-            lastLetter = letter;
+            lastKey = letter; // Update the last key pressed
 
             const display = document.getElementById('display');
             display.textContent = letter;
@@ -93,12 +102,8 @@
 
             // Change background color
             changeBackgroundColor();
-
-            // Fire confetti
-            fireConfetti();
-        }, 500); // Throttle to allow one key press every 500ms
-
-        document.addEventListener('keydown', handleKeyPress);
+            visual()
+        });
 
         // Start the timer when the page loads
         startTimer();
