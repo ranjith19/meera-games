@@ -16,6 +16,7 @@
     <div id="timer" class="text-2xl mb-4">Time Left: 30</div>
     <div id="score" class="text-2xl mb-4">Score: 0</div>
     <div id="display" class="font-bold text-center" style="font-size: 200px;"></div>
+    <div id="word" class="text-3xl font-semibold text-center mb-4"></div>
     <div id="game-over" class="hidden text-4xl font-bold mt-4">Game Over! Final Score: <span id="final-score"></span>
     </div>
     <script>
@@ -23,6 +24,46 @@
         let timeLeft = 300;
         let timerInterval;
         let lastKey = null; // Track the last key pressed
+
+        // Words for each letter
+        const letterWords = {
+            A: ["Apple", "Ant", "Arrow"],
+            B: ["Ball", "Banana", "Bee"],
+            C: ["Cat", "Car", "Cake"],
+            D: ["Dog", "Duck", "Drum"],
+            E: ["Elephant", "Egg", "Eagle"],
+            F: ["Fish", "Frog", "Fan"],
+            G: ["Goat", "Grapes", "Gift"],
+            H: ["Hat", "Horse", "House"],
+            I: ["Ice", "Igloo", "Iron"],
+            J: ["Juice", "Jelly", "Jaguar"],
+            K: ["Kite", "Key", "Kangaroo"],
+            L: ["Lion", "Lamp", "Leaf"],
+            M: ["Monkey", "Moon", "Mango"],
+            N: ["Nest", "Nose", "Nail"],
+            O: ["Orange", "Owl", "Octopus"],
+            P: ["Pig", "Pen", "Panda"],
+            Q: ["Queen", "Quilt", "Quail"],
+            R: ["Rabbit", "Ring", "Robot"],
+            S: ["Sun", "Star", "Snake"],
+            T: ["Tiger", "Tree", "Train"],
+            U: ["Umbrella", "Unicorn", "Urchin"],
+            V: ["Violin", "Van", "Vase"],
+            W: ["Wolf", "Whale", "Watch"],
+            X: ["Xylophone", "X-ray", "Xerus"],
+            Y: ["Yak", "Yarn", "Yacht"],
+            Z: ["Zebra", "Zoo", "Zip"],
+            0: ["Zero"],
+            1: ["One"],
+            2: ["Two"],
+            3: ["Three"],
+            4: ["Four"],
+            5: ["Five"],
+            6: ["Six"],
+            7: ["Seven"],
+            8: ["Eight"],
+            9: ["Nine"]
+        };
 
         function fireConfetti() {
             confetti({
@@ -88,13 +129,42 @@
             display.textContent = letter;
             display.style.color = "#fff";
 
-            // Speech synthesis
-            const speech = new SpeechSynthesisUtterance(letter.toLowerCase());
-            speech.lang = 'en-US';
-            speech.rate = 0.8;
-            speech.pitch = 1.2;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(speech);
+            // Pick a random word for the letter
+            const words = letterWords[letter] || [];
+            let word = "";
+            if (words.length > 0) {
+                word = words[Math.floor(Math.random() * words.length)];
+            }
+            document.getElementById('word').textContent = word;
+
+            // Speech synthesis for letter and word (with a pause for clarity)
+            if (word) {
+                // Say the letter clearly
+                const letterUtter = new SpeechSynthesisUtterance(letter.toLowerCase());
+                letterUtter.lang = 'en-US';
+                letterUtter.rate = 0.5; // slower for clarity
+                letterUtter.pitch = 1;
+
+                // Then say "for <word>"
+                const wordUtter = new SpeechSynthesisUtterance(`for ${word}`);
+                wordUtter.lang = 'en-US';
+                wordUtter.rate = 0.7;
+                wordUtter.pitch = 1;
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(letterUtter);
+                letterUtter.onend = () => {
+                    window.speechSynthesis.speak(wordUtter);
+                };
+            } else {
+                // Just say the letter
+                const utter = new SpeechSynthesisUtterance(letter);
+                utter.lang = 'en-US';
+                utter.rate = 0.5;
+                utter.pitch = 1.2;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utter);
+            }
 
             // Update score
             score++;
