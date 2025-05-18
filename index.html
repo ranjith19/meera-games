@@ -141,13 +141,13 @@
             if (word) {
                 // Say the letter clearly
                 const letterUtter = new SpeechSynthesisUtterance(letter.toLowerCase());
-                letterUtter.lang = 'en-US';
+                letterUtter.lang = 'en-US'; // Indian English accent
                 letterUtter.rate = 0.5; // slower for clarity
                 letterUtter.pitch = 1;
 
                 // Then say "for <word>"
                 const wordUtter = new SpeechSynthesisUtterance(`for ${word}`);
-                wordUtter.lang = 'en-US';
+                wordUtter.lang = 'en-US'; // Indian English accent
                 wordUtter.rate = 0.7;
                 wordUtter.pitch = 1;
 
@@ -159,7 +159,7 @@
             } else {
                 // Just say the letter
                 const utter = new SpeechSynthesisUtterance(letter);
-                utter.lang = 'en-US';
+                utter.lang = 'en-US'; // Indian English accent
                 utter.rate = 0.5;
                 utter.pitch = 1.2;
                 window.speechSynthesis.cancel();
