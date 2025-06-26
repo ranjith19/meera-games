@@ -148,6 +148,26 @@
         .timer-warning {
             color: #dc2626 !important;
         }
+
+        .colorful-dots {
+            background: linear-gradient(45deg, #3b82f6, #10b981, #f59e0b, #ef4444, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: colorShift 3s ease-in-out infinite;
+        }
+
+        @keyframes colorShift {
+
+            0%,
+            100% {
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                filter: hue-rotate(60deg);
+            }
+        }
     </style>
 </head>
 
@@ -163,6 +183,9 @@
     <div id="display" class="font-bold text-center letter-display" style="font-size: 180px;"></div>
 
     <div id="emoji-display" class="text-center mb-4" style="font-size: 120px;"></div>
+
+    <div id="dots-display" class="text-center mb-4 hidden colorful-dots" style="font-size: 40px; font-weight: bold;">
+    </div>
 
     <div class="word-display mb-4">
         <div id="word" class="text-3xl font-semibold text-center text-gray-700"></div>
@@ -192,6 +215,8 @@
         let bestStreak = 0;
         let level = 1;
         let soundEnabled = true;
+        let celebrationActive = false; // Prevent overlapping celebrations
+        let lastKeyTime = 0; // Track timing to prevent rapid key repeats
 
         // Enhanced word dictionary with phonetic pronunciations
         const letterWords = {
@@ -325,16 +350,16 @@
                 { word: "Zoo", phonetic: "ZOO", emoji: "🦁" },
                 { word: "Zip", phonetic: "ZIP", emoji: "🤐" }
             ],
-            0: [{ word: "Zero", phonetic: "ZEER-oh", emoji: "0️⃣" }],
-            1: [{ word: "One", phonetic: "WUHN", emoji: "1️⃣" }],
-            2: [{ word: "Two", phonetic: "TOO", emoji: "2️⃣" }],
-            3: [{ word: "Three", phonetic: "THREE", emoji: "3️⃣" }],
-            4: [{ word: "Four", phonetic: "FAWR", emoji: "4️⃣" }],
-            5: [{ word: "Five", phonetic: "FAHYV", emoji: "5️⃣" }],
-            6: [{ word: "Six", phonetic: "SIKS", emoji: "6️⃣" }],
-            7: [{ word: "Seven", phonetic: "SEV-uhn", emoji: "7️⃣" }],
-            8: [{ word: "Eight", phonetic: "AYT", emoji: "8️⃣" }],
-            9: [{ word: "Nine", phonetic: "NAHYN", emoji: "9️⃣" }]
+            0: [{ word: "Zero", phonetic: "ZEER-oh", emoji: "0️⃣", dots: "" }],
+            1: [{ word: "One", phonetic: "WUHN", emoji: "1️⃣", dots: "●" }],
+            2: [{ word: "Two", phonetic: "TOO", emoji: "2️⃣", dots: "● ●" }],
+            3: [{ word: "Three", phonetic: "THREE", emoji: "3️⃣", dots: "● ● ●" }],
+            4: [{ word: "Four", phonetic: "FAWR", emoji: "4️⃣", dots: "● ● ● ●" }],
+            5: [{ word: "Five", phonetic: "FAHYV", emoji: "5️⃣", dots: "● ● ● ● ●" }],
+            6: [{ word: "Six", phonetic: "SIKS", emoji: "6️⃣", dots: "● ● ● ● ● ●" }],
+            7: [{ word: "Seven", phonetic: "SEV-uhn", emoji: "7️⃣", dots: "● ● ● ● ● ● ●" }],
+            8: [{ word: "Eight", phonetic: "AYT", emoji: "8️⃣", dots: "● ● ● ● ● ● ● ●" }],
+            9: [{ word: "Nine", phonetic: "NAHYN", emoji: "9️⃣", dots: "● ● ● ● ● ● ● ● ●" }]
         };
 
         // Fun celebration messages for toddlers
@@ -355,6 +380,9 @@
         }
 
         function showCelebration() {
+            // Prevent overlapping celebrations
+            if (celebrationActive) return;
+
             const messages = celebrationMessages;
             const message = messages[Math.floor(Math.random() * messages.length)];
 
@@ -363,15 +391,21 @@
             celebEl.textContent = message;
             document.body.appendChild(celebEl);
 
-            setTimeout(() => celebEl.remove(), 2000);
+            celebrationActive = true;
+            setTimeout(() => {
+                celebEl.remove();
+                celebrationActive = false;
+            }, 2000);
         }
 
         function updateLevel() {
             const newLevel = Math.floor(score / 5) + 1; // Level up more frequently
             if (newLevel > level) {
                 level = newLevel;
-                showCelebration();
-                gentleConfetti();
+                if (!celebrationActive) { // Only celebrate if not already celebrating
+                    showCelebration();
+                    gentleConfetti();
+                }
             }
 
             // Update encouragement message
@@ -507,15 +541,32 @@
                 selectedWord = wordData[Math.floor(Math.random() * wordData.length)];
             }
 
+            // Check if it's a number for special handling
+            const isNumber = /^[0-9]$/.test(letter);
+
             // Update emoji display with big, animated emoji
             const emojiDisplay = document.getElementById('emoji-display');
+            const dotsDisplay = document.getElementById('dots-display');
+
             if (selectedWord) {
                 emojiDisplay.textContent = selectedWord.emoji;
                 emojiDisplay.classList.remove('emoji-pop');
                 void emojiDisplay.offsetWidth; // Trigger reflow
                 emojiDisplay.classList.add('emoji-pop');
+
+                // Show counting dots for numbers
+                if (isNumber && selectedWord.dots !== undefined) {
+                    dotsDisplay.textContent = selectedWord.dots;
+                    dotsDisplay.classList.remove('hidden');
+                    dotsDisplay.classList.remove('emoji-pop');
+                    void dotsDisplay.offsetWidth;
+                    dotsDisplay.classList.add('emoji-pop');
+                } else {
+                    dotsDisplay.classList.add('hidden');
+                }
             } else {
                 emojiDisplay.textContent = '';
+                dotsDisplay.classList.add('hidden');
             }
 
             // Update word display (without emoji since it's now separate)
@@ -528,8 +579,12 @@
                 document.getElementById('phonetic').textContent = '';
             }
 
-            // Clear, slow speech for toddlers
-            if (selectedWord) {
+            // Simple speech for numbers - just say the number word once
+            if (selectedWord && isNumber) {
+                // Say the number clearly and that's it
+                await speakWithBetterPronunciation(selectedWord.word.toLowerCase(), 0.5, 1.0);
+            } else if (selectedWord) {
+                // Regular letter handling
                 // Say the letter slowly and clearly
                 await speakWithBetterPronunciation(letter.toLowerCase(), 0.5, 1.0);
                 // Small pause
@@ -544,17 +599,28 @@
         document.addEventListener('keydown', async (event) => {
             if (timeLeft <= 0) return;
 
+            // Prevent rapid key repeats (debounce)
+            const currentTime = Date.now();
+            if (currentTime - lastKeyTime < 300) { // 300ms debounce
+                return;
+            }
+            lastKeyTime = currentTime;
+
             const letter = event.key.toUpperCase();
             if (!/^[A-Z0-9]$/.test(letter)) {
-                // Gentle effect for invalid keys - just a soft celebration
-                showCelebration();
+                // Gentle effect for invalid keys - only if not already celebrating
+                if (!celebrationActive) {
+                    showCelebration();
+                }
                 return;
             }
 
             // Simple scoring - every key press is celebrated!
             if (letter === lastKey) {
-                // Even repeated keys get gentle encouragement
-                showCelebration();
+                // Even repeated keys get gentle encouragement, but not overlapping
+                if (!celebrationActive) {
+                    showCelebration();
+                }
                 return;
             }
 
@@ -588,8 +654,8 @@
             // Check for level up (more frequent for encouragement)
             updateLevel();
 
-            // Celebration every 3 letters for frequent positive reinforcement
-            if (streak % 3 === 0 && streak > 0) {
+            // Celebration every 5 letters (less frequent) for positive reinforcement
+            if (streak % 5 === 0 && streak > 0 && !celebrationActive) {
                 showCelebration();
             }
         });
