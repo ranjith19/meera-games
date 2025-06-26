@@ -10,71 +10,390 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @keyframes gentleBounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes emojiPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes softPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .gentle-bounce {
+            animation: gentleBounce 0.8s ease-in-out;
+        }
+
+        .emoji-pop {
+            animation: emojiPop 1s ease-out;
+        }
+
+        .soft-pulse {
+            animation: softPulse 2s ease-in-out infinite;
+        }
+
+        .letter-display {
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            color: #2563eb;
+            /* Nice blue color */
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+            transition: background 0.8s ease;
+        }
+
+        .floating-points {
+            position: fixed;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #059669;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            animation: float-up 2s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .streak-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: #374151;
+        }
+
+        .word-display {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid #dbeafe;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            z-index: 1000;
+            animation: celebrate 1.5s ease-out;
+            color: #059669;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .timer-warning {
+            color: #dc2626 !important;
+        }
+    </style>
 </head>
 
-<body class="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
-    <div id="timer" class="text-2xl mb-4">Time Left: 30</div>
-    <div id="score" class="text-2xl mb-4">Score: 0</div>
-    <div id="display" class="font-bold text-center" style="font-size: 200px;"></div>
-    <div id="word" class="text-3xl font-semibold text-center mb-4"></div>
-    <div id="game-over" class="hidden text-4xl font-bold mt-4">Game Over! Final Score: <span id="final-score"></span>
+<body class="flex flex-col items-center justify-center h-screen game-container text-gray-700">
+    <div class="streak-indicator">
+        <div id="streak" class="text-lg font-bold text-blue-600">⭐ Letters: 0</div>
+        <div id="level" class="text-sm text-gray-600">Great job!</div>
+    </div>
+
+    <div id="timer" class="text-2xl mb-4 soft-pulse text-gray-600">⏰ Time: <span id="time-display">300</span></div>
+    <div id="score" class="text-2xl mb-4 font-bold text-green-600">� Score: 0</div>
+
+    <div id="display" class="font-bold text-center letter-display" style="font-size: 180px;"></div>
+
+    <div id="emoji-display" class="text-center mb-4" style="font-size: 120px;"></div>
+
+    <div class="word-display mb-4">
+        <div id="word" class="text-3xl font-semibold text-center text-gray-700"></div>
+        <div id="phonetic" class="text-base text-center mt-2 text-gray-500"></div>
+    </div>
+
+    <div id="instructions" class="text-center mb-4">
+        <p class="text-lg text-gray-600">� Press a letter to learn!</p>
+        <p class="text-sm text-gray-500">Try different letters to see new words!</p>
+    </div>
+
+    <div id="game-over" class="hidden text-center">
+        <div class="text-4xl font-bold mb-4 text-blue-600">� Wonderful Learning! �</div>
+        <div class="text-2xl mb-4 text-gray-700">You learned <span id="final-score"></span> letters!</div>
+        <div class="text-lg mb-4 text-gray-600">Best streak: <span id="best-streak"></span></div>
+        <button id="restart-btn"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg">
+            🔄 Learn More Letters
+        </button>
     </div>
     <script>
         let score = 0;
         let timeLeft = 300;
         let timerInterval;
-        let lastKey = null; // Track the last key pressed
+        let lastKey = null;
+        let streak = 0;
+        let bestStreak = 0;
+        let level = 1;
+        let soundEnabled = true;
 
-        // Words for each letter (child-friendly)
+        // Enhanced word dictionary with phonetic pronunciations
         const letterWords = {
-            A: ["Apple", "Ant", "Airplane"],
-            B: ["Ball", "Bear", "Banana"],
-            C: ["Cat", "Car", "Cake"],
-            D: ["Dog", "Duck", "Doll"],
-            E: ["Elephant", "Egg", "Ear"],
-            F: ["Fish", "Frog", "Fox"],
-            G: ["Goat", "Grapes", "Girl"],
-            H: ["Hat", "Horse", "House"],
-            I: ["Ice", "Igloo", "Insect"],
-            J: ["Juice", "Jam", "Jeep"],
-            K: ["Kite", "Key", "Kangaroo"],
-            L: ["Lion", "Leaf", "Lamp"],
-            M: ["Monkey", "Moon", "Milk"],
-            N: ["Nest", "Nose", "Nut"],
-            O: ["Orange", "Owl", "Octopus"],
-            P: ["Pig", "Pen", "Panda"],
-            Q: ["Queen", "Quilt", "Quack"],
-            R: ["Rabbit", "Rain", "Robot"],
-            S: ["Sun", "Star", "Sock"],
-            T: ["Tiger", "Tree", "Train"],
-            U: ["Umbrella", "Unicorn", "Urchin"],
-            V: ["Violin", "Van", "Vase"],
-            W: ["Wolf", "Whale", "Watch"],
-            X: ["Xylophone", "Box", "Fox"], // X words are rare, so include words ending with X
-            Y: ["Yak", "Yarn", "Yogurt"],
-            Z: ["Zebra", "Zoo", "Zip"],
-            0: ["Zero"],
-            1: ["One"],
-            2: ["Two"],
-            3: ["Three"],
-            4: ["Four"],
-            5: ["Five"],
-            6: ["Six"],
-            7: ["Seven"],
-            8: ["Eight"],
-            9: ["Nine"]
+            A: [
+                { word: "Apple", phonetic: "AP-uhl", emoji: "🍎" },
+                { word: "Ant", phonetic: "ANT", emoji: "🐜" },
+                { word: "Airplane", phonetic: "AIR-playn", emoji: "✈️" }
+            ],
+            B: [
+                { word: "Ball", phonetic: "BAWL", emoji: "⚽" },
+                { word: "Bear", phonetic: "BAIR", emoji: "🐻" },
+                { word: "Banana", phonetic: "buh-NAN-uh", emoji: "🍌" }
+            ],
+            C: [
+                { word: "Cat", phonetic: "KAT", emoji: "🐱" },
+                { word: "Car", phonetic: "KAHR", emoji: "🚗" },
+                { word: "Cake", phonetic: "KAYK", emoji: "🎂" }
+            ],
+            D: [
+                { word: "Dog", phonetic: "DAWG", emoji: "🐶" },
+                { word: "Duck", phonetic: "DUHK", emoji: "🦆" },
+                { word: "Doll", phonetic: "DAHL", emoji: "🪆" }
+            ],
+            E: [
+                { word: "Elephant", phonetic: "EL-uh-fuhnt", emoji: "🐘" },
+                { word: "Egg", phonetic: "EG", emoji: "🥚" },
+                { word: "Eye", phonetic: "AHY", emoji: "👁️" }
+            ],
+            F: [
+                { word: "Fish", phonetic: "FISH", emoji: "🐟" },
+                { word: "Frog", phonetic: "FRAWG", emoji: "🐸" },
+                { word: "Fox", phonetic: "FAWKS", emoji: "🦊" }
+            ],
+            G: [
+                { word: "Goat", phonetic: "GOHT", emoji: "🐐" },
+                { word: "Grapes", phonetic: "GRAYPS", emoji: "🍇" },
+                { word: "Guitar", phonetic: "gi-TAHR", emoji: "🎸" }
+            ],
+            H: [
+                { word: "Hat", phonetic: "HAT", emoji: "🎩" },
+                { word: "Horse", phonetic: "HAWRS", emoji: "🐴" },
+                { word: "House", phonetic: "HOWS", emoji: "🏠" }
+            ],
+            I: [
+                { word: "Ice", phonetic: "AHYS", emoji: "🧊" },
+                { word: "Igloo", phonetic: "IG-loo", emoji: "🏔️" },
+                { word: "Island", phonetic: "AHY-luhnd", emoji: "🏝️" }
+            ],
+            J: [
+                { word: "Juice", phonetic: "JOOS", emoji: "🧃" },
+                { word: "Jam", phonetic: "JAM", emoji: "🍯" },
+                { word: "Jeep", phonetic: "JEEP", emoji: "🚙" }
+            ],
+            K: [
+                { word: "Kite", phonetic: "KAHYT", emoji: "🪁" },
+                { word: "Key", phonetic: "KEE", emoji: "🔑" },
+                { word: "Kangaroo", phonetic: "kang-guh-ROO", emoji: "🦘" }
+            ],
+            L: [
+                { word: "Lion", phonetic: "LAHY-uhn", emoji: "🦁" },
+                { word: "Leaf", phonetic: "LEEF", emoji: "🍃" },
+                { word: "Lamp", phonetic: "LAMP", emoji: "💡" }
+            ],
+            M: [
+                { word: "Monkey", phonetic: "MUHNG-kee", emoji: "🐒" },
+                { word: "Moon", phonetic: "MOON", emoji: "🌙" },
+                { word: "Milk", phonetic: "MILK", emoji: "🥛" }
+            ],
+            N: [
+                { word: "Nest", phonetic: "NEST", emoji: "🪺" },
+                { word: "Nose", phonetic: "NOHZ", emoji: "👃" },
+                { word: "Nut", phonetic: "NUHT", emoji: "🥜" }
+            ],
+            O: [
+                { word: "Orange", phonetic: "AWR-inj", emoji: "🍊" },
+                { word: "Owl", phonetic: "OWL", emoji: "🦉" },
+                { word: "Octopus", phonetic: "AHK-tuh-puhs", emoji: "🐙" }
+            ],
+            P: [
+                { word: "Pig", phonetic: "PIG", emoji: "🐷" },
+                { word: "Pen", phonetic: "PEN", emoji: "🖊️" },
+                { word: "Panda", phonetic: "PAN-duh", emoji: "🐼" }
+            ],
+            Q: [
+                { word: "Queen", phonetic: "KWEEN", emoji: "👸" },
+                { word: "Quilt", phonetic: "KWILT", emoji: "🛏️" },
+                { word: "Question", phonetic: "KWES-chuhn", emoji: "❓" }
+            ],
+            R: [
+                { word: "Rabbit", phonetic: "RAB-it", emoji: "🐰" },
+                { word: "Rain", phonetic: "RAYN", emoji: "🌧️" },
+                { word: "Robot", phonetic: "ROH-baht", emoji: "🤖" }
+            ],
+            S: [
+                { word: "Sun", phonetic: "SUHN", emoji: "☀️" },
+                { word: "Star", phonetic: "STAHR", emoji: "⭐" },
+                { word: "Snake", phonetic: "SNAYK", emoji: "🐍" }
+            ],
+            T: [
+                { word: "Tiger", phonetic: "TAHY-ger", emoji: "🐅" },
+                { word: "Tree", phonetic: "TREE", emoji: "🌳" },
+                { word: "Train", phonetic: "TRAYN", emoji: "🚂" }
+            ],
+            U: [
+                { word: "Umbrella", phonetic: "uhm-BREL-uh", emoji: "☂️" },
+                { word: "Unicorn", phonetic: "YOO-ni-kawrn", emoji: "🦄" },
+                { word: "Under", phonetic: "UHN-der", emoji: "⬇️" }
+            ],
+            V: [
+                { word: "Violin", phonetic: "vahy-uh-LIN", emoji: "🎻" },
+                { word: "Van", phonetic: "VAN", emoji: "🚐" },
+                { word: "Vase", phonetic: "VAYS", emoji: "🏺" }
+            ],
+            W: [
+                { word: "Wolf", phonetic: "WOOLF", emoji: "🐺" },
+                { word: "Whale", phonetic: "HWAYL", emoji: "🐋" },
+                { word: "Watch", phonetic: "WACH", emoji: "⌚" }
+            ],
+            X: [
+                { word: "Xylophone", phonetic: "ZAHY-luh-fohn", emoji: "🎹" },
+                { word: "X-ray", phonetic: "EKS-ray", emoji: "🩻" },
+                { word: "Box", phonetic: "BAWKS", emoji: "📦" }
+            ],
+            Y: [
+                { word: "Yak", phonetic: "YAK", emoji: "🐂" },
+                { word: "Yarn", phonetic: "YAHRN", emoji: "🧶" },
+                { word: "Yellow", phonetic: "YEL-oh", emoji: "💛" }
+            ],
+            Z: [
+                { word: "Zebra", phonetic: "ZEE-bruh", emoji: "🦓" },
+                { word: "Zoo", phonetic: "ZOO", emoji: "🦁" },
+                { word: "Zip", phonetic: "ZIP", emoji: "🤐" }
+            ],
+            0: [{ word: "Zero", phonetic: "ZEER-oh", emoji: "0️⃣" }],
+            1: [{ word: "One", phonetic: "WUHN", emoji: "1️⃣" }],
+            2: [{ word: "Two", phonetic: "TOO", emoji: "2️⃣" }],
+            3: [{ word: "Three", phonetic: "THREE", emoji: "3️⃣" }],
+            4: [{ word: "Four", phonetic: "FAWR", emoji: "4️⃣" }],
+            5: [{ word: "Five", phonetic: "FAHYV", emoji: "5️⃣" }],
+            6: [{ word: "Six", phonetic: "SIKS", emoji: "6️⃣" }],
+            7: [{ word: "Seven", phonetic: "SEV-uhn", emoji: "7️⃣" }],
+            8: [{ word: "Eight", phonetic: "AYT", emoji: "8️⃣" }],
+            9: [{ word: "Nine", phonetic: "NAHYN", emoji: "9️⃣" }]
         };
 
-        function fireConfetti() {
+        // Fun celebration messages for toddlers
+        const celebrationMessages = [
+            "� Amazing!", "👏 Well done!", "� Great job!", "⭐ Fantastic!",
+            "� Beautiful!", "� Perfect!", "🦋 Wonderful!", "� Excellent!"
+        ];
+
+        function showFloatingPoints(points, x, y) {
+            const pointsEl = document.createElement('div');
+            pointsEl.className = 'floating-points';
+            pointsEl.textContent = `+${points}`;
+            pointsEl.style.left = x + 'px';
+            pointsEl.style.top = y + 'px';
+            document.body.appendChild(pointsEl);
+
+            setTimeout(() => pointsEl.remove(), 2000);
+        }
+
+        function showCelebration() {
+            const messages = celebrationMessages;
+            const message = messages[Math.floor(Math.random() * messages.length)];
+
+            const celebEl = document.createElement('div');
+            celebEl.className = 'celebration';
+            celebEl.textContent = message;
+            document.body.appendChild(celebEl);
+
+            setTimeout(() => celebEl.remove(), 2000);
+        }
+
+        function updateLevel() {
+            const newLevel = Math.floor(score / 5) + 1; // Level up more frequently
+            if (newLevel > level) {
+                level = newLevel;
+                showCelebration();
+                gentleConfetti();
+            }
+
+            // Update encouragement message
+            const encouragements = [
+                "Great job!", "Keep going!", "You're learning!", "Wonderful!",
+                "Amazing work!", "So smart!", "Well done!", "Fantastic!"
+            ];
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            document.getElementById('level').textContent = encouragement;
+        }
+
+        function gentleConfetti() {
+            // Much gentler confetti for toddlers
             confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
-                ticks: 200,
-                gravity: 0.8,
-                scalar: 1.2,
-                shapes: ['star', 'circle', 'square'],
+                particleCount: 20,
+                spread: 60,
+                origin: { y: 0.7 },
+                colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                ticks: 100,
+                gravity: 0.5,
+                scalar: 0.8,
+                shapes: ['circle'],
                 zIndex: 100
             });
         }
@@ -82,7 +401,20 @@
         function startTimer() {
             timerInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('timer').textContent = `Time Left: ${timeLeft}`;
+                const timerEl = document.getElementById('timer');
+                const timeDisplay = document.getElementById('time-display');
+
+                // Show minutes and seconds for better understanding
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                // Gentle warning when time is running low
+                if (timeLeft <= 60) {
+                    timerEl.classList.add('timer-warning');
+                    timerEl.classList.add('soft-pulse');
+                }
+
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     endGame();
@@ -94,89 +426,191 @@
             document.getElementById('display').classList.add('hidden');
             document.getElementById('timer').classList.add('hidden');
             document.getElementById('score').classList.add('hidden');
+            document.getElementById('instructions').classList.add('hidden');
+            document.querySelector('.word-display').classList.add('hidden');
+            document.querySelector('.streak-indicator').classList.add('hidden');
             document.getElementById('game-over').classList.remove('hidden');
             document.getElementById('final-score').textContent = score;
+            document.getElementById('best-streak').textContent = bestStreak;
+
+            // Gentle final celebration
+            setTimeout(() => {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => gentleConfetti(), i * 500);
+                }
+            }, 500);
         }
 
         function changeBackgroundColor() {
-            const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-            document.body.style.backgroundColor = randomColor;
+            // Soft, calming colors for toddlers
+            const gradients = [
+                'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%)', // Light blue
+                'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%)', // Light green
+                'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fffbeb 100%)', // Light yellow
+                'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%)', // Light pink
+                'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #f5f3ff 100%)', // Light purple
+            ];
+
+            const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+            document.body.style.background = randomGradient;
         }
 
-        function visual() {
+        function speakWithBetterPronunciation(text, rate = 0.6, pitch = 1.0) {
+            return new Promise((resolve) => {
+                if (!soundEnabled) {
+                    resolve();
+                    return;
+                }
 
+                window.speechSynthesis.cancel();
 
-            // Fire confetti
-            fireConfetti();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = rate; // Slower for toddlers
+                utterance.pitch = pitch; // More natural pitch
+                utterance.volume = 0.9;
+
+                // Try to use a gentle, clear voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice =>
+                    voice.name.includes('Google') ||
+                    voice.name.includes('Alex') ||
+                    voice.name.includes('Samantha') ||
+                    voice.name.includes('Natural') ||
+                    voice.name.includes('Female')
+                );
+
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+
+                utterance.onend = resolve;
+                utterance.onerror = resolve;
+
+                window.speechSynthesis.speak(utterance);
+            });
         }
 
-        document.addEventListener('keydown', (event) => {
-            if (timeLeft <= 0) return; // Stop processing if the game is over
+        async function handleKeyPress(letter) {
+            // Update display with gentle bounce animation
+            const display = document.getElementById('display');
+            display.textContent = letter;
+            display.classList.remove('gentle-bounce');
+            void display.offsetWidth; // Trigger reflow
+            display.classList.add('gentle-bounce');
+
+            // Get word data
+            const wordData = letterWords[letter] || [];
+            let selectedWord = null;
+
+            if (wordData.length > 0) {
+                selectedWord = wordData[Math.floor(Math.random() * wordData.length)];
+            }
+
+            // Update emoji display with big, animated emoji
+            const emojiDisplay = document.getElementById('emoji-display');
+            if (selectedWord) {
+                emojiDisplay.textContent = selectedWord.emoji;
+                emojiDisplay.classList.remove('emoji-pop');
+                void emojiDisplay.offsetWidth; // Trigger reflow
+                emojiDisplay.classList.add('emoji-pop');
+            } else {
+                emojiDisplay.textContent = '';
+            }
+
+            // Update word display (without emoji since it's now separate)
+            if (selectedWord) {
+                document.getElementById('word').textContent = selectedWord.word;
+                document.getElementById('phonetic').textContent =
+                    `(${selectedWord.phonetic})`;
+            } else {
+                document.getElementById('word').textContent = letter;
+                document.getElementById('phonetic').textContent = '';
+            }
+
+            // Clear, slow speech for toddlers
+            if (selectedWord) {
+                // Say the letter slowly and clearly
+                await speakWithBetterPronunciation(letter.toLowerCase(), 0.5, 1.0);
+                // Small pause
+                await new Promise(resolve => setTimeout(resolve, 300));
+                // Then say "for" with the word
+                await speakWithBetterPronunciation(`for ${selectedWord.word}`, 0.6, 1.0);
+            } else {
+                await speakWithBetterPronunciation(letter.toLowerCase(), 0.5, 1.0);
+            }
+        }
+
+        document.addEventListener('keydown', async (event) => {
+            if (timeLeft <= 0) return;
 
             const letter = event.key.toUpperCase();
             if (!/^[A-Z0-9]$/.test(letter)) {
-                visual()
+                // Gentle effect for invalid keys - just a soft celebration
+                showCelebration();
                 return;
             }
 
+            // Simple scoring - every key press is celebrated!
             if (letter === lastKey) {
-                visual();
-                return; // Skip if the same key is pressed repeatedly
-            }
-            lastKey = letter; // Update the last key pressed
-
-            const display = document.getElementById('display');
-            display.textContent = letter;
-            display.style.color = "#fff";
-
-            // Pick a random word for the letter
-            const words = letterWords[letter] || [];
-            let word = "";
-            if (words.length > 0) {
-                word = words[Math.floor(Math.random() * words.length)];
-            }
-            document.getElementById('word').textContent = word;
-
-            // Speech synthesis for letter and word (with a pause for clarity)
-            if (word) {
-                // Say the letter clearly
-                const letterUtter = new SpeechSynthesisUtterance(letter.toLowerCase());
-                letterUtter.lang = 'en-US'; // Indian English accent
-                letterUtter.rate = 0.5; // slower for clarity
-                letterUtter.pitch = 1;
-
-                // Then say "for <word>"
-                const wordUtter = new SpeechSynthesisUtterance(`for ${word}`);
-                wordUtter.lang = 'en-US'; // Indian English accent
-                wordUtter.rate = 0.7;
-                wordUtter.pitch = 1;
-
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(letterUtter);
-                letterUtter.onend = () => {
-                    window.speechSynthesis.speak(wordUtter);
-                };
-            } else {
-                // Just say the letter
-                const utter = new SpeechSynthesisUtterance(letter);
-                utter.lang = 'en-US'; // Indian English accent
-                utter.rate = 0.5;
-                utter.pitch = 1.2;
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(utter);
+                // Even repeated keys get gentle encouragement
+                showCelebration();
+                return;
             }
 
-            // Update score
-            score++;
-            document.getElementById('score').textContent = `Score: ${score}`;
+            // Valid key press!
+            lastKey = letter;
+            streak++;
 
-            // Change background color
+            // Simple scoring - 1 point per letter, bonus for variety
+            const points = 1;
+            score += points;
+
+            // Update best streak
+            if (streak > bestStreak) {
+                bestStreak = streak;
+            }
+
+            // Update displays with encouraging language
+            document.getElementById('score').textContent = `� Score: ${score}`;
+            document.getElementById('streak').textContent = `⭐ Letters: ${streak}`;
+
+            // Show gentle floating points
+            showFloatingPoints(points, window.innerWidth / 2, window.innerHeight / 2);
+
+            // Handle the key press
+            await handleKeyPress(letter);
+
+            // Gentle visual effects
             changeBackgroundColor();
-            visual()
+            gentleConfetti();
+
+            // Check for level up (more frequent for encouragement)
+            updateLevel();
+
+            // Celebration every 3 letters for frequent positive reinforcement
+            if (streak % 3 === 0 && streak > 0) {
+                showCelebration();
+            }
         });
+
+        // Restart functionality
+        document.addEventListener('click', (event) => {
+            if (event.target.id === 'restart-btn') {
+                location.reload();
+            }
+        });
+
+        // Initialize voices when they're ready
+        window.speechSynthesis.onvoiceschanged = function () {
+            // Just trigger voice loading
+        };
 
         // Start the timer when the page loads
         startTimer();
+
+        // Initial background
+        changeBackgroundColor();
     </script>
 </body>
 
