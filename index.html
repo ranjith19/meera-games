@@ -8,8 +8,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
         integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,700,1,0"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <style>
         @keyframes gentleBounce {
 
@@ -168,17 +173,338 @@
                 filter: hue-rotate(60deg);
             }
         }
+
+        .material-symbols-rounded {
+            display: inline-flex;
+            font-family: 'Material Symbols Rounded';
+            font-size: 1.15em;
+            font-style: normal;
+            font-weight: normal;
+            line-height: 1;
+            vertical-align: -0.18em;
+        }
+
+        img.emoji {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            margin: 0 0.04em;
+            vertical-align: -0.12em;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .sky-friend {
+            position: fixed;
+            left: 6vw;
+            bottom: 8vh;
+            font-size: clamp(4rem, 12vw, 8rem);
+            filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.18));
+            transition: transform 0.35s ease;
+            z-index: 5;
+        }
+
+        .sky-friend.cheer {
+            transform: translateY(-18px) rotate(-8deg) scale(1.12);
+        }
+
+        .tap-pad {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(13, minmax(34px, 1fr));
+            gap: 8px;
+            width: min(92vw, 760px);
+            z-index: 20;
+        }
+
+        .tap-key {
+            border: 0;
+            border-radius: 999px;
+            color: white;
+            font-size: clamp(1rem, 2vw, 1.45rem);
+            font-weight: 800;
+            padding: 10px 0;
+            box-shadow: 0 8px 0 rgba(15, 23, 42, 0.15), 0 14px 24px rgba(15, 23, 42, 0.16);
+            transform: translateY(0);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .tap-key:active,
+        .tap-key.bump {
+            transform: translateY(5px) scale(0.98);
+            box-shadow: 0 3px 0 rgba(15, 23, 42, 0.16), 0 8px 16px rgba(15, 23, 42, 0.14);
+        }
+
+        .mission-card,
+        .sticker-shelf {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.86);
+            border: 3px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.12);
+            z-index: 15;
+        }
+
+        .mission-card {
+            top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 18px;
+            font-size: clamp(1.2rem, 2.6vw, 2rem);
+            font-weight: 900;
+            color: #7c3aed;
+        }
+
+        .target-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(66px, 12vw, 96px);
+            height: clamp(66px, 12vw, 96px);
+            border-radius: 999px;
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: white;
+            font-size: clamp(2.8rem, 8vw, 5rem);
+            line-height: 1;
+            box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.12), 0 10px 22px rgba(124, 58, 237, 0.26);
+        }
+
+        .mission-icon,
+        .speak-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 999px;
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .speak-button {
+            border: 0;
+            background: #dbeafe;
+            color: #2563eb;
+            cursor: pointer;
+        }
+
+        .speak-button:active {
+            transform: scale(0.94);
+        }
+
+        .sticker-shelf {
+            top: 128px;
+            min-width: 180px;
+            padding: 8px 16px;
+            font-size: 1.5rem;
+            min-height: 48px;
+        }
+
+        .word-goal {
+            position: fixed;
+            top: 190px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 76px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.84);
+            border-radius: 24px;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.1);
+            z-index: 14;
+        }
+
+        .word-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(44px, 8vw, 64px);
+            height: clamp(44px, 8vw, 64px);
+            border-radius: 18px;
+            background: #eef2ff;
+            border: 3px dashed #a78bfa;
+            color: #7c3aed;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 900;
+        }
+
+        .word-slot.filled {
+            border-style: solid;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .magic-star {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2rem;
+            animation: starFly 900ms ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes starFly {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0.6) rotate(0deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(1.4) rotate(180deg);
+            }
+        }
+
+        .wiggle {
+            animation: wiggle 0.55s ease-in-out;
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            25% {
+                transform: rotate(-6deg) scale(1.06);
+            }
+
+            75% {
+                transform: rotate(6deg) scale(1.06);
+            }
+        }
+
+        .shape-cloud {
+            position: fixed;
+            width: 90px;
+            height: 90px;
+            border-radius: 999px;
+            opacity: 0.35;
+            animation: drift 12s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        .shape-cloud:nth-child(1) {
+            top: 18%;
+            left: 10%;
+            background: #fbbf24;
+        }
+
+        .shape-cloud:nth-child(2) {
+            top: 22%;
+            right: 12%;
+            background: #60a5fa;
+            animation-delay: -3s;
+        }
+
+        .shape-cloud:nth-child(3) {
+            bottom: 25%;
+            right: 22%;
+            background: #f472b6;
+            animation-delay: -6s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                transform: translateY(-28px) scale(1.08);
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding-top: 170px;
+            }
+
+            .tap-pad {
+                grid-template-columns: repeat(7, minmax(36px, 1fr));
+                bottom: 12px;
+            }
+
+            .mission-card {
+                gap: 8px;
+                padding: 8px 12px;
+            }
+
+            .mission-icon,
+            .speak-button {
+                width: 44px;
+                height: 44px;
+            }
+
+            .sticker-shelf {
+                top: 116px;
+                min-width: 150px;
+                min-height: 42px;
+                font-size: 1.25rem;
+            }
+
+            .word-goal {
+                top: 168px;
+                gap: 6px;
+                padding: 8px 10px;
+                min-height: 58px;
+            }
+
+            .sky-friend {
+                left: 2vw;
+                bottom: 20vh;
+                font-size: 4.2rem;
+            }
+
+            .word-display {
+                padding: 14px;
+            }
+
+            #display {
+                font-size: 120px !important;
+            }
+
+            #emoji-display {
+                font-size: 82px !important;
+            }
+        }
     </style>
 </head>
 
 <body class="flex flex-col items-center justify-center h-screen game-container text-gray-700">
+    <div aria-hidden="true">
+        <div class="shape-cloud"></div>
+        <div class="shape-cloud"></div>
+        <div class="shape-cloud"></div>
+    </div>
+    <div id="mission" class="mission-card" aria-label="Letter to find">
+        <span class="mission-icon material-symbols-rounded" aria-hidden="true">touch_app</span>
+        <span id="target-letter" class="target-letter">A</span>
+        <button id="say-target" class="speak-button" type="button" aria-label="Hear target letter">
+            <span class="material-symbols-rounded">volume_up</span>
+        </button>
+    </div>
+    <div id="stickers" class="sticker-shelf text-center" aria-label="Sticker rewards"></div>
+    <div id="word-goal" class="word-goal" aria-label="Word progress"></div>
+    <div id="friend" class="sky-friend" aria-hidden="true">🦄</div>
     <div class="streak-indicator">
-        <div id="streak" class="text-lg font-bold text-blue-600">⭐ Letters: 0</div>
+        <div id="streak" class="text-lg font-bold text-blue-600"><span class="material-symbols-rounded">grade</span> Letters: 0</div>
         <div id="level" class="text-sm text-gray-600">Great job!</div>
     </div>
 
-    <div id="timer" class="text-2xl mb-4 soft-pulse text-gray-600">⏰ Time: <span id="time-display">300</span></div>
-    <div id="score" class="text-2xl mb-4 font-bold text-green-600">� Score: 0</div>
+    <div id="timer" class="text-2xl mb-4 soft-pulse text-gray-600"><span class="material-symbols-rounded">timer</span> Time: <span id="time-display">300</span></div>
+    <div id="score" class="text-2xl mb-4 font-bold text-green-600"><span class="material-symbols-rounded">stars</span> Stars: 0</div>
 
     <div id="display" class="font-bold text-center letter-display" style="font-size: 180px;"></div>
 
@@ -193,19 +519,20 @@
     </div>
 
     <div id="instructions" class="text-center mb-4">
-        <p class="text-lg text-gray-600">� Press a letter to learn!</p>
-        <p class="text-sm text-gray-500">Try different letters to see new words!</p>
+        <p class="text-lg text-gray-600">Tap a bubble or press a key!</p>
+        <p class="text-sm text-gray-500">Match each purple letter to build a tiny word.</p>
     </div>
 
     <div id="game-over" class="hidden text-center">
-        <div class="text-4xl font-bold mb-4 text-blue-600">� Wonderful Learning! �</div>
-        <div class="text-2xl mb-4 text-gray-700">You learned <span id="final-score"></span> letters!</div>
+        <div class="text-4xl font-bold mb-4 text-blue-600"><span class="material-symbols-rounded">celebration</span> Wonderful Learning! <span class="material-symbols-rounded">celebration</span></div>
+        <div class="text-2xl mb-4 text-gray-700">You collected <span id="final-score"></span> stars!</div>
         <div class="text-lg mb-4 text-gray-600">Best streak: <span id="best-streak"></span></div>
         <button id="restart-btn"
             class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg">
-            🔄 Learn More Letters
+            <span class="material-symbols-rounded">refresh</span> Learn More Letters
         </button>
     </div>
+    <div id="tap-pad" class="tap-pad" aria-label="Letter buttons"></div>
     <script>
         let score = 0;
         let timeLeft = 300;
@@ -217,6 +544,29 @@
         let soundEnabled = true;
         let celebrationActive = false; // Prevent overlapping celebrations
         let lastKeyTime = 0; // Track timing to prevent rapid key repeats
+        let missionLetter = 'A';
+        let stickerCount = 0;
+        let stickerTrail = '';
+        let currentWordIndex = 0;
+        let currentLetterIndex = 0;
+        let wordCompletePause = false;
+
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const buttonColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+        const friends = ['🦄', '🐵', '🐻', '🐶', '🐱', '🐸', '🦁', '🐯', '🐼', '🦊'];
+        const stickers = ['⭐', '🌈', '🎈', '🦋', '🚀', '🍭', '👑', '💎', '🌸', '🎁'];
+        const wordMissions = [
+            { word: 'CAT', emoji: '🐱' },
+            { word: 'DOG', emoji: '🐶' },
+            { word: 'SUN', emoji: '☀️' },
+            { word: 'BUS', emoji: '🚌' },
+            { word: 'CAR', emoji: '🚗' },
+            { word: 'CUP', emoji: '🥤' },
+            { word: 'HAT', emoji: '🎩' },
+            { word: 'PIG', emoji: '🐷' },
+            { word: 'FOX', emoji: '🦊' },
+            { word: 'MOON', emoji: '🌙' }
+        ];
 
         // Enhanced word dictionary with phonetic pronunciations
         const letterWords = {
@@ -391,11 +741,125 @@
 
         // Fun celebration messages for toddlers
         const celebrationMessages = [
-            "� Amazing!", "👏 Well done!",
-            "� Great job!", "⭐ Fantastic!",
-            "� Beautiful!", "� Perfect!",
-            "🦋 Wonderful!", "� Excellent!"
+            "🌟 Amazing!", "👏 Well done!",
+            "🎉 Great job!", "⭐ Fantastic!",
+            "🌈 Beautiful!", "💖 Perfect!",
+            "🦋 Wonderful!", "🚀 Excellent!"
         ];
+
+        function setupTapPad() {
+            const tapPad = document.getElementById('tap-pad');
+            alphabet.forEach((letter, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'tap-key';
+                button.textContent = letter;
+                button.style.background = buttonColors[index % buttonColors.length];
+                button.setAttribute('aria-label', `Letter ${letter}`);
+                button.addEventListener('click', () => playLetter(letter, button));
+                tapPad.appendChild(button);
+            });
+        }
+
+        function renderWordGoal() {
+            const wordGoal = document.getElementById('word-goal');
+            const currentMission = wordMissions[currentWordIndex];
+
+            wordGoal.innerHTML = currentMission.word.split('').map((letter, index) => {
+                const isFilled = index < currentLetterIndex;
+                return `<span class="word-slot ${isFilled ? 'filled' : ''}">${isFilled ? letter : ''}</span>`;
+            }).join('');
+        }
+
+        function pickMissionLetter() {
+            const currentMission = wordMissions[currentWordIndex];
+            missionLetter = currentMission.word[currentLetterIndex];
+            const target = document.getElementById('target-letter');
+            target.textContent = missionLetter;
+            target.classList.remove('wiggle');
+            void target.offsetWidth;
+            target.classList.add('wiggle');
+            renderWordGoal();
+            highlightTargetButton();
+            speakWithBetterPronunciation(missionLetter.toLowerCase(), 0.45, 1.15);
+        }
+
+        async function completeWordMission() {
+            const currentMission = wordMissions[currentWordIndex];
+            wordCompletePause = true;
+            renderWordGoal();
+
+            document.getElementById('emoji-display').textContent = currentMission.emoji;
+            renderEmoji(document.getElementById('emoji-display'));
+            document.getElementById('word').textContent = currentMission.word;
+            document.getElementById('phonetic').textContent = 'You made a word!';
+
+            addSticker();
+            showCelebration();
+            gentleConfetti(80);
+            sparkleBurst(window.innerWidth / 2, window.innerHeight / 2);
+            await speakWithBetterPronunciation(currentMission.word.toLowerCase(), 0.5, 1.1);
+
+            currentWordIndex = (currentWordIndex + 1) % wordMissions.length;
+            currentLetterIndex = 0;
+            setTimeout(() => {
+                wordCompletePause = false;
+                pickMissionLetter();
+            }, 3500);
+        }
+
+        function cheerFriend() {
+            const friend = document.getElementById('friend');
+            friend.textContent = friends[Math.floor(Math.random() * friends.length)];
+            renderEmoji(friend);
+            friend.classList.add('cheer');
+            setTimeout(() => friend.classList.remove('cheer'), 450);
+        }
+
+        function addSticker() {
+            const shelf = document.getElementById('stickers');
+            const sticker = stickers[stickerCount % stickers.length];
+            stickerCount++;
+            stickerTrail = `${stickerTrail}${sticker}`.slice(-20);
+            shelf.textContent = stickerTrail;
+            renderEmoji(shelf);
+            shelf.classList.remove('wiggle');
+            void shelf.offsetWidth;
+            shelf.classList.add('wiggle');
+        }
+
+        function sparkleBurst(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const star = document.createElement('div');
+                star.className = 'magic-star';
+                star.textContent = stickers[Math.floor(Math.random() * stickers.length)];
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                star.style.setProperty('--dx', `${Math.random() * 220 - 110}px`);
+                star.style.setProperty('--dy', `${Math.random() * -170 - 40}px`);
+                document.body.appendChild(star);
+                renderEmoji(star);
+                setTimeout(() => star.remove(), 950);
+            }
+        }
+
+        function bumpButton(letter) {
+            const buttons = document.querySelectorAll('.tap-key');
+            const button = Array.from(buttons).find((item) => item.textContent === letter);
+            if (!button) return;
+
+            button.classList.add('bump');
+            setTimeout(() => button.classList.remove('bump'), 180);
+        }
+
+        function highlightTargetButton() {
+            const buttons = document.querySelectorAll('.tap-key');
+            buttons.forEach((button) => {
+                const isTarget = button.textContent === missionLetter;
+                button.style.outline = isTarget ? '5px solid #fef08a' : '';
+                button.style.outlineOffset = isTarget ? '3px' : '';
+            });
+        }
 
         function showFloatingPoints(points, x, y) {
             const pointsEl = document.createElement('div');
@@ -404,8 +868,19 @@
             pointsEl.style.left = x + 'px';
             pointsEl.style.top = y + 'px';
             document.body.appendChild(pointsEl);
+            renderEmoji(pointsEl);
 
             setTimeout(() => pointsEl.remove(), 2000);
+        }
+
+        function renderEmoji(root = document.body) {
+            if (!window.twemoji) return;
+
+            window.twemoji.parse(root, {
+                folder: 'svg',
+                ext: '.svg',
+                className: 'emoji'
+            });
         }
 
         function showCelebration() {
@@ -419,6 +894,7 @@
             celebEl.className = 'celebration';
             celebEl.textContent = message;
             document.body.appendChild(celebEl);
+            renderEmoji(celebEl);
 
             celebrationActive = true;
             setTimeout(() => {
@@ -446,10 +922,10 @@
             document.getElementById('level').textContent = encouragement;
         }
 
-        function gentleConfetti() {
+        function gentleConfetti(particleCount = 20) {
             // Much gentler confetti for toddlers
             confetti({
-                particleCount: 20,
+                particleCount,
                 spread: 60,
                 origin: { y: 0.7 },
                 colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
@@ -490,6 +966,10 @@
             document.getElementById('timer').classList.add('hidden');
             document.getElementById('score').classList.add('hidden');
             document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('mission').classList.add('hidden');
+            document.getElementById('stickers').classList.add('hidden');
+            document.getElementById('word-goal').classList.add('hidden');
+            document.getElementById('tap-pad').classList.add('hidden');
             document.querySelector('.word-display').classList.add('hidden');
             document.querySelector('.streak-indicator').classList.add('hidden');
             document.getElementById('game-over').classList.remove('hidden');
@@ -579,6 +1059,7 @@
 
             if (selectedWord) {
                 emojiDisplay.textContent = selectedWord.emoji;
+                renderEmoji(emojiDisplay);
                 emojiDisplay.classList.remove('emoji-pop');
                 void emojiDisplay.offsetWidth; // Trigger reflow
                 emojiDisplay.classList.add('emoji-pop');
@@ -625,8 +1106,9 @@
             }
         }
 
-        document.addEventListener('keydown', async (event) => {
+        async function playLetter(letter, sourceButton = null) {
             if (timeLeft <= 0) return;
+            if (wordCompletePause) return;
 
             // Prevent rapid key repeats (debounce)
             const currentTime = Date.now();
@@ -635,7 +1117,6 @@
             }
             lastKeyTime = currentTime;
 
-            const letter = event.key.toUpperCase();
             if (!/^[A-Z0-9]$/.test(letter)) {
                 // Gentle effect for invalid keys - only if not already celebrating
                 if (!celebrationActive) {
@@ -657,8 +1138,8 @@
             lastKey = letter;
             streak++;
 
-            // Simple scoring - 1 point per letter, bonus for variety
-            const points = 1;
+            const matchedMission = letter === missionLetter;
+            const points = matchedMission ? 3 : 1;
             score += points;
 
             // Update best streak
@@ -667,11 +1148,32 @@
             }
 
             // Update displays with encouraging language
-            document.getElementById('score').textContent = `� Score: ${score}`;
-            document.getElementById('streak').textContent = `⭐ Letters: ${streak}`;
+            document.getElementById('score').innerHTML = `<span class="material-symbols-rounded">stars</span> Stars: ${score}`;
+            document.getElementById('streak').innerHTML = `<span class="material-symbols-rounded">grade</span> Letters: ${streak}`;
 
             // Show gentle floating points
             showFloatingPoints(points, window.innerWidth / 2, window.innerHeight / 2);
+            sparkleBurst(window.innerWidth / 2, window.innerHeight / 2);
+            cheerFriend();
+            bumpButton(letter);
+
+            if (sourceButton) {
+                sourceButton.classList.add('bump');
+                setTimeout(() => sourceButton.classList.remove('bump'), 180);
+            }
+
+            if (matchedMission) {
+                currentLetterIndex++;
+                renderWordGoal();
+                gentleConfetti(45);
+                await speakWithBetterPronunciation('You found it!', 0.65, 1.15);
+
+                if (currentLetterIndex >= wordMissions[currentWordIndex].word.length) {
+                    await completeWordMission();
+                } else {
+                    pickMissionLetter();
+                }
+            }
 
             // Handle the key press
             await handleKeyPress(letter);
@@ -687,6 +1189,10 @@
             if (streak % 5 === 0 && streak > 0 && !celebrationActive) {
                 showCelebration();
             }
+        }
+
+        document.addEventListener('keydown', async (event) => {
+            await playLetter(event.key.toUpperCase());
         });
 
         // Restart functionality
@@ -696,12 +1202,20 @@
             }
         });
 
+        document.getElementById('say-target').addEventListener('click', () => {
+            speakWithBetterPronunciation(missionLetter.toLowerCase(), 0.45, 1.15);
+            document.getElementById('target-letter').classList.add('wiggle');
+        });
+
         // Initialize voices when they're ready
         window.speechSynthesis.onvoiceschanged = function () {
             // Just trigger voice loading
         };
 
         // Start the timer when the page loads
+        setupTapPad();
+        pickMissionLetter();
+        renderEmoji();
         startTimer();
 
         // Initial background
